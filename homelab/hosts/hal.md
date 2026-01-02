@@ -38,10 +38,10 @@ Based on chassis layout (left to right, as viewed from rear):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  12V   CONSOLE  USB3   ETH5   ETH3   ETH4   SFP3   SFP1   WiFi   WiFi      │
-│   ⊚      ▣       ▣      ▣      ▣      ▣     ▣ ▣    ▣ ▣     ◯      ◯       │
-│                         ▣      ▣      ▣     ▣ ▣    ▣ ▣                     │
-│                        ETH1   ETH2   ETH2   SFP4   SFP2                     │
+│  12V   CONSOLE  USB3          ETH3   ETH4   SFP3   SFP1   WiFi   WiFi       │
+│   ⊚      ▣       ▣             ▣      ▣     ▣ ▣    ▣ ▣     ◯      ◯         │
+│                         ▣      ▣      ▣     ▣ ▣    ▣ ▣                      │
+│                        ETH5   ETH1   ETH2   SFP4   SFP2                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
