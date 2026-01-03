@@ -36,64 +36,72 @@ Priority: 🔴 Critical | 🟠 High | 🟡 Medium | 🟢 Nice-to-have
 
 ---
 
-# Phase 1: Network Foundation 🔴
+# Phase 1: Network Foundation 🟡 IN PROGRESS
 
-## 1.1 OPNsense Base
-- [ ] Install OPNsense on hal (Qotom C3758R)
-- [ ] Configure WAN interface
-- [ ] Configure LAN interface (VLAN 254)
-- [ ] Set management IP: <LAN_IP>
-- [ ] Set gateway IP: <LAN_IP> (no WebUI)
-- [ ] Basic firewall rules (allow management access)
-- [ ] Enable SSH for emergency access
+## 1.1 OPNsense Base ✅ COMPLETE
+- [x] Install OPNsense on hal (Qotom C3758R)
+- [x] Configure WAN interface (igc0 → Ziggo)
+- [x] Configure LAN interface (igc1 legacy, igc2 MGMT)
+- [x] Set management IP: 192.168.254.254 (WebUI)
+- [x] Set gateway IP: 192.168.254.1 (no WebUI)
+- [x] Basic firewall rules (allow management access)
+- [x] Enable SSH for emergency access
 
-## 1.2 VLAN Creation (in order)
-- [ ] VLAN 254 (Management) - <LAN_IP>/24
-- [ ] VLAN 100 (Unprivileged/Quarantine) - <LAN_IP>/24
-- [ ] VLAN 101 (Privileged LAN) - <LAN_IP>/24
-- [ ] VLAN 150 (Reverse Proxy) - <LAN_IP>/24
-- [ ] VLAN 200 (AI) - <LAN_IP>/24
-- [ ] VLAN 210 (ARR) - <LAN_IP>/24
-- [ ] VLAN 220 (Database) - <LAN_IP>/24
-- [ ] VLAN 230 (Storage) - <LAN_IP>/24
-- [ ] VLAN 240 (Docker) - <LAN_IP>/24
-- [ ] VLAN 110-112 (WiFi VLANs) - After RADIUS works
-- [ ] VLAN 120 (Work) - After basics work
-- [ ] VLAN 130-131 (Remote sites) - After VPN works
+## 1.2 VLAN Creation ✅ COMPLETE
+All 15 VLANs created on ix1 trunk via Python XML script (2025-01-03):
+- [x] VLAN 254 (Management) - 192.168.254.0/24
+- [x] VLAN 100 (Quarantine) - 192.168.100.0/24
+- [x] VLAN 101 (Privileged) - 192.168.101.0/24
+- [x] VLAN 110 (Guest WiFi) - 192.168.110.0/24
+- [x] VLAN 111 (Home WiFi) - 192.168.111.0/24
+- [x] VLAN 112 (IoT) - 192.168.112.0/24
+- [x] VLAN 120 (Work) - 192.168.120.0/24
+- [x] VLAN 130 (Basement) - 192.168.130.0/24
+- [x] VLAN 131 (Garage) - 192.168.131.0/24
+- [x] VLAN 140 (VvE) - 192.168.140.0/24
+- [x] VLAN 150 (Proxy) - 192.168.150.0/24
+- [x] VLAN 200 (AI) - 192.168.200.0/24
+- [x] VLAN 210 (ARR) - 192.168.210.0/24
+- [x] VLAN 220 (Database) - 192.168.220.0/24
+- [x] VLAN 230 (Storage) - 192.168.230.0/24
+- [x] VLAN 240 (Docker) - 192.168.240.0/24
 
-## 1.3 Switch Configuration
-- [ ] Zyxel GS1900-24HP: Set management IP <LAN_IP>
+## 1.3 Switch Configuration 🟡 IN PROGRESS
+- [x] Zyxel GS1900-24HP: Management IP 192.168.254.2 (OpenWRT 24.10.1)
 - [ ] Zyxel: Configure VLAN trunk ports
 - [ ] Zyxel: Configure access ports per VLAN
-- [ ] ONTI S508CL-8S: Set management IP <LAN_IP>
-- [ ] ONTI: Configure backend trunk
-- [ ] Tenda TEM2007: Set management IP <LAN_IP>
-- [ ] Tenda: Bridge to ONTI uplink
+- [x] ONTI S508CL-8S: Management IP 192.168.254.3 (OpenWRT SNAPSHOT r31056)
+- [ ] ONTI: Configure VLAN trunk to OPNsense (lan4)
+- [ ] ONTI: Configure backend access ports
+- [x] BiDi fiber ONTI P8 ↔ Zyxel P26: 1Gbps UP (SFP-BX-U03D ↔ SFP-BX-D03D)
+- [!] LACP/LAG: NOT POSSIBLE on OpenWRT RTL838x/RTL930x (no HW offload)
+- [~] Tenda TEM2007: Connected to ONTI, config pending
 
 ## 1.4 Host Network Configuration
-For each Proxmox host:
-- [ ] hal: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] deep-thought: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] napster: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] mothership: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] skynet: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] watson: Frontend <LAN_IP>, Backend <LAN_IP>
-- [ ] alexandria: Frontend <LAN_IP>, Backend <LAN_IP>
+Proxmox hosts on VLAN 254 management:
+- [x] hal: 192.168.254.100 (OPNsense VM host)
+- [~] deep-thought: 192.168.254.101 (connected via Zyxel P17)
+- [~] napster: 192.168.254.102 (connected via Zyxel P18)
+- [ ] mothership: 192.168.254.103
+- [ ] skynet: 192.168.254.104
+- [ ] watson: 192.168.254.105 (offline)
+- [ ] alexandria: 192.168.254.110
 
-## 1.5 DHCP Configuration
-- [ ] Configure DHCP per VLAN (ranges .100-.250)
+## 1.5 DHCP Configuration ✅ COMPLETE
+- [x] Configure DHCP per VLAN (ranges .100-.250)
 - [ ] Static reservations for known devices
-- [ ] DNS server = gateway (.1) per VLAN
+- [x] DNS server = gateway (.1) per VLAN
 
-## 1.6 Firewall Rules
+## 1.6 Firewall Rules 🟡 PERMISSIVE (needs hardening)
+Current: "Allow all" for testing. TODO: implement zone isolation.
 - [ ] VLAN 100 rules (quarantine - limited internet)
 - [ ] VLAN 101 rules (privileged - via proxy to backend)
 - [ ] VLAN 150 rules (proxy - can reach backend services)
 - [ ] Backend VLANs 200-250 (NO internet, inter-VLAN allowed)
-- [ ] Management VLAN 254 (full access)
+- [x] Management VLAN 254 (full access)
 
 ## 1.7 Network Verification
-- [ ] Ping test all hosts
+- [x] Ping test: OPNsense ↔ ONTI ↔ Zyxel on VLAN 254
 - [ ] VLAN isolation test (100 cannot reach 200)
 - [ ] Backend internet block verified
 - [ ] Inter-VLAN routing via OPNsense confirmed
@@ -524,7 +532,7 @@ States: NEW → EXTRACTED → CLASSIFIED → CURATED → INDEXED → PUBLISHED �
 | Phase | Items | Complete | Progress |
 |-------|-------|----------|----------|
 | 0. Pre-Staging | 5 | 5 | ████████████████████ 100% |
-| 1. Network | ~40 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
+| 1. Network | ~40 | ~25 | ████████████░░░░░░░░ 60% |
 | 2. Identity | ~35 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
 | 3. DNS/Certs | ~10 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
 | 4. Core Services | ~20 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
@@ -539,7 +547,7 @@ States: NEW → EXTRACTED → CLASSIFIED → CURATED → INDEXED → PUBLISHED �
 | 13. Doc Pipeline | ~15 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
 | 14. Hardening | ~10 | 0 | ░░░░░░░░░░░░░░░░░░░░ 0% |
 
-**Total: ~243 items**
+**Total: ~243 items | ~30 complete**
 
 ---
 
